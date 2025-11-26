@@ -5,299 +5,130 @@
   <title>Dashboard ACC Herrajes - Meta Ads 30 días</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Plotly para gráficos tipo PowerBI -->
+  <!-- Plotly -->
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <!-- PapaParse para leer CSV en el navegador -->
+  <!-- PapaParse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
     :root {
-      --bg: #050816;
-      --bg-card: #0b1120;
+      --bg: #020617;
+      --bg-card: #020617;
       --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.15);
+      --accent-soft: rgba(56, 189, 248, 0.12);
       --text: #e5e7eb;
       --muted: #9ca3af;
-      --danger: #f97373;
       --success: #4ade80;
-      --border: #1f2933;
+      --border: #1f2937;
       --radius: 16px;
-      --shadow-soft: 0 10px 35px rgba(0,0,0,0.45);
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.45);
     }
-
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Roboto", sans-serif;
-    }
-
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text","Roboto",sans-serif; }
     body {
       margin: 0;
       padding: 16px;
-      background: radial-gradient(circle at 10% 0%, #1d2538 0, #020617 40%, #000 100%);
+      background: radial-gradient(circle at 10% 0%, #111827 0, #020617 45%, #000 100%);
       color: var(--text);
     }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
+    .container { max-width: 1200px; margin: 0 auto; }
     .card {
-      background: radial-gradient(circle at top, #111827, #020617);
+      background: radial-gradient(circle at top, #0b1120, #020617);
       border-radius: var(--radius);
       padding: 20px 22px;
+      border: 1px solid rgba(148,163,184,0.25);
       box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(148, 163, 184, 0.15);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(10px);
     }
-
-    h1 {
-      margin: 0 0 6px;
-      font-size: 1.5rem;
-      letter-spacing: 0.03em;
-    }
-
-    .subtitle {
-      font-size: 0.85rem;
-      color: var(--muted);
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
+    h1 { margin: 0 0 6px; font-size: 1.5rem; letter-spacing: 0.02em; }
+    .subtitle { font-size: 0.85rem; color: var(--muted); display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
     .pill {
       padding: 2px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
+      border: 1px solid rgba(148,163,184,0.3);
       font-size: 0.75rem;
     }
-
-    .pill--client {
-      border-color: rgba(56, 189, 248, 0.6);
-      color: var(--accent);
-      background: var(--accent-soft);
-    }
-
+    .pill--client { border-color: rgba(56,189,248,0.7); color: var(--accent); background: var(--accent-soft); }
     .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-      gap: 18px;
-      margin-top: 16px;
+      display:grid;
+      grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);
+      gap:18px;
+      margin-top:16px;
     }
-
-    @media (max-width: 960px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
+    @media(max-width:960px){ .layout{grid-template-columns:1fr;} }
     .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 10px;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:10px;
     }
-
-    @media (max-width: 640px) {
-      .kpi-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
+    @media(max-width:640px){ .kpi-grid{grid-template-columns:1fr;} }
     .kpi {
-      background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(15,23,42,0.7));
+      background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(15,23,42,0.8));
       border-radius: 12px;
       padding: 10px 12px;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      position: relative;
-      overflow: hidden;
+      border:1px solid rgba(148,163,184,0.25);
+      position:relative;
+      overflow:hidden;
     }
-
-    .kpi::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top right, rgba(56,189,248,0.12), transparent 60%);
-      opacity: 0.9;
-      pointer-events: none;
+    .kpi::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at top right, rgba(56,189,248,0.12), transparent 60%);
+      pointer-events:none;
     }
-
-    .kpi-label {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    .kpi-value {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-top: 4px;
-    }
-
-    .kpi-chip {
-      font-size: 0.7rem;
-      margin-top: 2px;
-      color: var(--muted);
-    }
-
-    .kpi-value strong {
-      font-size: 1.2rem;
-    }
-
-    .controls {
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .controls-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-    }
-
-    label {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
+    .kpi-label { font-size:0.75rem; color:var(--muted); }
+    .kpi-value { font-size:1.1rem; font-weight:600; margin-top:4px; }
+    .kpi-chip { font-size:0.75rem; margin-top:2px; color:var(--muted); }
+    .controls { margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .controls-group { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    label { font-size:0.8rem; color:var(--muted); }
     select {
-      background: #020617;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      color: var(--text);
-      padding: 4px 10px;
-      font-size: 0.8rem;
-      outline: none;
+      background:#020617;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.6);
+      color:var(--text);
+      padding:4px 10px;
+      font-size:0.8rem;
+      outline:none;
     }
-
-    select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(56,189,248,0.4);
-    }
-
+    select:focus{border-color:var(--accent); box-shadow:0 0 0 1px rgba(56,189,248,0.4);}
     .chart-card {
-      background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.85));
+      background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.9));
       border-radius: var(--radius);
       padding: 10px 10px 14px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      border: 1px solid rgba(148,163,184,0.3);
       box-shadow: var(--shadow-soft);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      height: 100%;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
-
-    .chart-title {
-      font-size: 0.9rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--muted);
+    .chart-title{font-size:0.9rem; display:flex; justify-content:space-between; align-items:center; color:var(--muted);}
+    .chart{width:100%; height:310px;}
+    .badge{display:inline-flex; align-items:center; gap:4px; font-size:0.7rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(148,163,184,0.35); color:var(--muted);}
+    .badge-dot{width:7px; height:7px; border-radius:999px; background:var(--accent);}
+    .hint{font-size:0.75rem; color:var(--muted); margin-top:4px;}
+    .table-wrapper{
+      margin-top:16px;
+      border-radius:12px;
+      border:1px solid rgba(148,163,184,0.35);
+      overflow:hidden;
+      background:radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(15,23,42,1));
     }
-
-    .chart {
-      width: 100%;
-      height: 310px;
-    }
-
-    .table-wrapper {
-      margin-top: 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      overflow: hidden;
-      background: radial-gradient(circle at top, rgba(15,23,42,0.9), rgba(15,23,42,0.98));
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-    }
-
-    thead {
-      background: linear-gradient(90deg, rgba(15,23,42,1), rgba(15,23,42,0.9));
-    }
-
-    th, td {
-      padding: 6px 8px;
-      text-align: right;
-      border-bottom: 1px solid rgba(31,41,55,0.9);
-      white-space: nowrap;
-    }
-
-    th:first-child, td:first-child {
-      text-align: left;
-    }
-
-    th {
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-    }
-
-    th.sortable::after {
-      content: "↕";
-      font-size: 0.7rem;
-      margin-left: 4px;
-      color: rgba(148,163,184,0.7);
-    }
-
-    tr:nth-child(even) td {
-      background: rgba(15,23,42,0.85);
-    }
-
-    tr:hover td {
-      background: rgba(15,23,42,1);
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.35);
-      color: var(--muted);
-    }
-
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .hint {
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .tag {
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.4);
-      color: var(--muted);
-      margin-left: 4px;
-    }
-
-    .tag--good {
-      color: var(--success);
-      border-color: rgba(74,222,128,0.6);
-    }
-
-    .tag--warn {
-      color: #facc15;
-      border-color: rgba(250,204,21,0.6);
+    table{width:100%; border-collapse:collapse; font-size:0.8rem;}
+    thead{background:linear-gradient(90deg, rgba(15,23,42,1), rgba(15,23,42,0.95));}
+    th,td{padding:6px 8px; text-align:right; border-bottom:1px solid rgba(31,41,55,0.9); white-space:nowrap;}
+    th:first-child,td:first-child{text-align:left;}
+    th{font-weight:500; color:var(--muted); cursor:pointer; user-select:none;}
+    th.sortable::after{content:"↕"; font-size:0.7rem; margin-left:4px; color:rgba(148,163,184,0.7);}
+    tr:nth-child(even) td{background:rgba(15,23,42,0.9);}
+    tr:hover td{background:rgba(15,23,42,1);}
+    .tag{font-size:0.7rem; padding:2px 6px; border-radius:999px; border:1px solid rgba(148,163,184,0.4); color:var(--muted); margin-left:4px;}
+    .tag--good{color:var(--success); border-color:rgba(74,222,128,0.6);}
+    .status {
+      margin-top:8px;
+      font-size:0.75rem;
+      color:var(--muted);
     }
   </style>
 </head>
@@ -311,8 +142,11 @@
         <span class="pill" id="date-range-pill">Rango: cargando...</span>
       </div>
 
+      <div class="status" id="load-status">
+        ⏳ Cargando datos de campañas, conjuntos de anuncios y anuncios...
+      </div>
+
       <div class="layout">
-        <!-- Panel izquierdo: KPIs + Controles -->
         <div>
           <div class="kpi-grid">
             <div class="kpi">
@@ -359,36 +193,31 @@
           </div>
 
           <p class="hint">
-            💡 Consejo: cambia el <strong>nivel</strong> (campaña / conjunto / anuncio) y la
-            <strong>métrica principal</strong> para detectar dónde se concentran el gasto y los resultados.
+            💡 Cambiá el <strong>nivel</strong> (campañas / conjuntos / anuncios) y la
+            <strong>métrica</strong> para ver dónde se concentran inversión y resultados.
           </p>
         </div>
 
-        <!-- Panel derecho: gráfico principal -->
         <div class="chart-card">
           <div class="chart-title">
             <span id="chart-title">Distribución de inversión por campaña</span>
-            <span class="badge">
-              <span class="badge-dot"></span> Datos últimos 30 días
-            </span>
+            <span class="badge"><span class="badge-dot"></span>Últimos 30 días</span>
           </div>
           <div id="mainChart" class="chart"></div>
           <div class="hint">
-            📊 Haz hover sobre las barras para ver detalles. Usa el menú de Plotly (arriba a la derecha)
-            para descargar la imagen o hacer zoom.
+            📊 Hover para detalles. Desde el menú de Plotly podés descargar la imagen o hacer zoom.
           </div>
         </div>
       </div>
 
-      <!-- Tabla detalle -->
-      <div class="table-wrapper" style="margin-top:18px;">
+      <div class="table-wrapper">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px 4px;">
           <span style="font-size:0.85rem;color:var(--muted);">
             Detalle por <span id="table-level-label">campaña</span>
             <span class="tag tag--good">ordenado por métrica principal</span>
           </span>
           <span style="font-size:0.75rem;color:var(--muted);">
-            Click en los encabezados para ordenar columnas
+            Click en los encabezados para ordenar
           </span>
         </div>
         <table id="detail-table">
@@ -405,20 +234,20 @@
               <th class="sortable" data-key="CPC">CPC</th>
             </tr>
           </thead>
-          <tbody id="detail-tbody">
-            <!-- Se llena por JS -->
-          </tbody>
+          <tbody id="detail-tbody"></tbody>
         </table>
       </div>
     </div>
   </div>
 
   <script>
-    // === CONFIGURACIÓN DE ARCHIVOS CSV (asumiendo que están en la misma carpeta que este HTML) ===
+    // 👇 SI TUS CSV ESTÁN EN UNA CARPETA (p.ej. "data/"), poné "data/"
+    const CSV_PATH = "./";
+
     const CSV_FILES = {
-      ads: "ACCHerrajes_LC_4WRD_BX-Ads-Oct-27-2025-Nov-25-2025.csv",
-      adsets: "ACCHerrajes_LC_4WRD_BX-Ad-sets-Oct-27-2025-Nov-25-2025.csv",
-      campaigns: "ACCHerrajes_LC_4WRD_BX-Campaigns-Oct-27-2025-Nov-25-2025.csv"
+      ads: CSV_PATH + "ACCHerrajes_LC_4WRD_BX-Ads-Oct-27-2025-Nov-25-2025.csv",
+      adsets: CSV_PATH + "ACCHerrajes_LC_4WRD_BX-Ad-sets-Oct-27-2025-Nov-25-2025.csv",
+      campaigns: CSV_PATH + "ACCHerrajes_LC_4WRD_BX-Campaigns-Oct-27-2025-Nov-25-2025.csv"
     };
 
     let adsData = [];
@@ -433,142 +262,87 @@
     };
 
     function parseNumber(value) {
+      if (value === null || value === undefined || value === "") return 0;
       const v = parseFloat(String(value).replace(",", "."));
       return isNaN(v) ? 0 : v;
     }
-
     function formatCurrency(value) {
       const v = parseNumber(value);
       if (!v) return "-";
-      return v.toLocaleString("es-AR", {
-        style: "currency",
-        currency: "ARS",
-        maximumFractionDigits: 0
-      });
+      return v.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
     }
-
     function formatNumber(value, decimals = 0) {
       const v = parseNumber(value);
       if (!v) return "-";
-      return v.toLocaleString("es-AR", {
-        maximumFractionDigits: decimals,
-        minimumFractionDigits: decimals
-      });
+      return v.toLocaleString("es-AR", { maximumFractionDigits: decimals, minimumFractionDigits: decimals });
     }
-
     function formatPercent(value, decimals = 2) {
       const v = parseNumber(value);
       if (!v) return "-";
-      return (v).toLocaleString("es-AR", {
-        maximumFractionDigits: decimals,
-        minimumFractionDigits: decimals
-      }) + " %";
+      return v.toLocaleString("es-AR", { maximumFractionDigits: decimals, minimumFractionDigits: decimals }) + " %";
     }
 
     function computeGlobalKpis(rows) {
-      let totalSpend = 0;
-      let totalResults = 0;
-      let totalImpressions = 0;
-      let totalReach = 0;
-
+      let totalSpend = 0, totalResults = 0, totalImpressions = 0, totalReach = 0;
       rows.forEach(r => {
         totalSpend += parseNumber(r["Amount spent (ARS)"]);
         totalResults += parseNumber(r["Results"]);
         totalImpressions += parseNumber(r["Impressions"]);
         totalReach += parseNumber(r["Reach"]);
       });
-
       const ctr = totalImpressions ? (totalResults / totalImpressions) * 100 : 0;
       const cpm = totalImpressions ? (totalSpend / totalImpressions) * 1000 : 0;
       const cpr = totalResults ? totalSpend / totalResults : 0;
-      const cpc = totalResults ? totalSpend / totalResults : 0; // aprox igual CPR si "Result" = clic/conversación
-
-      return {
-        totalSpend,
-        totalResults,
-        totalImpressions,
-        totalReach,
-        ctr,
-        cpm,
-        cpr,
-        cpc
-      };
+      const cpc = totalResults ? totalSpend / totalResults : 0;
+      return { totalSpend, totalResults, totalImpressions, totalReach, ctr, cpm, cpr, cpc };
     }
 
     function updateKpis() {
-      // Para KPIs globales usamos el nivel de conjuntos (si hay) o campañas
       const baseRows = adsetsData.length ? adsetsData : campaignsData;
+      if (!baseRows.length) return;
       const k = computeGlobalKpis(baseRows);
 
-      document.getElementById("kpi-spend").innerHTML =
-        "<strong>" + formatCurrency(k.totalSpend) + "</strong>";
-      document.getElementById("kpi-impressions").textContent =
-        "Impresiones: " + formatNumber(k.totalImpressions, 0);
+      document.getElementById("kpi-spend").innerHTML = "<strong>" + formatCurrency(k.totalSpend) + "</strong>";
+      document.getElementById("kpi-impressions").textContent = "Impresiones: " + formatNumber(k.totalImpressions, 0);
 
-      document.getElementById("kpi-results").innerHTML =
-        "<strong>" + formatNumber(k.totalResults, 0) + "</strong>";
-      document.getElementById("kpi-cpr").textContent =
-        "Costo por resultado: " + formatCurrency(k.cpr);
+      document.getElementById("kpi-results").innerHTML = "<strong>" + formatNumber(k.totalResults, 0) + "</strong>";
+      document.getElementById("kpi-cpr").textContent = "Costo por resultado: " + formatCurrency(k.cpr);
 
-      document.getElementById("kpi-ctr").innerHTML =
-        "<strong>" + formatPercent(k.ctr, 2) + "</strong>";
-      document.getElementById("kpi-cpm").textContent =
-        "CPM (ARS): " + formatNumber(k.cpm, 2);
+      document.getElementById("kpi-ctr").innerHTML = "<strong>" + formatPercent(k.ctr, 2) + "</strong>";
+      document.getElementById("kpi-cpm").textContent = "CPM (ARS): " + formatNumber(k.cpm, 2);
 
-      document.getElementById("kpi-reach").innerHTML =
-        "<strong>" + formatNumber(k.totalReach, 0) + "</strong>";
-      document.getElementById("kpi-cpc").textContent =
-        "CPC aprox.: " + formatCurrency(k.cpc);
+      document.getElementById("kpi-reach").innerHTML = "<strong>" + formatNumber(k.totalReach, 0) + "</strong>";
+      document.getElementById("kpi-cpc").textContent = "CPC aprox.: " + formatCurrency(k.cpc);
     }
 
     function getLevelConfig() {
       if (state.level === "campaigns") {
-        return {
-          data: campaignsData,
-          nameField: "Campaign name",
-          label: "campaña"
-        };
+        return { data: campaignsData, nameField: "Campaign name", label: "campaña" };
       } else if (state.level === "adsets") {
-        return {
-          data: adsetsData,
-          nameField: "Ad set name",
-          label: "conjunto de anuncios"
-        };
+        return { data: adsetsData, nameField: "Ad set name", label: "conjunto de anuncios" };
       } else {
-        return {
-          data: adsData,
-          nameField: "Ad name",
-          label: "anuncio"
-        };
+        return { data: adsData, nameField: "Ad name", label: "anuncio" };
       }
     }
 
     function updateChart() {
       const cfg = getLevelConfig();
-      const rows = cfg.data.slice(); // copia
+      const rows = cfg.data.slice();
+      if (!rows.length) return;
 
       const metric = state.metric;
       const nameField = cfg.nameField;
 
-      // Ordenar por métrica (desc)
       rows.sort((a, b) => parseNumber(b[metric]) - parseNumber(a[metric]));
-
-      // Limitamos a top 12 para que el gráfico sea legible
       const top = rows.slice(0, 12);
 
       const x = top.map(r => r[nameField] || "N/A");
       const y = top.map(r => parseNumber(r[metric]));
 
       const trace = {
-        x,
-        y,
-        type: "bar",
-        marker: {
-          line: { width: 1 }
-        },
-        hovertemplate:
-          "<b>%{x}</b><br>" +
-          metric + ": %{y:.2f}<extra></extra>"
+        x, y, type: "bar",
+        marker: { line: { width: 1 } },
+        hovertemplate: "<b>%{x}</b><br>" + metric + ": %{y:.2f}<extra></extra>"
       };
 
       const metricLabelMap = {
@@ -578,29 +352,19 @@
         "CTR (all)": "CTR (all)",
         "Reach": "Alcance"
       };
-
       const metricLabel = metricLabelMap[metric] || metric;
 
       const layout = {
         margin: { l: 80, r: 20, t: 30, b: 80 },
         paper_bgcolor: "rgba(0,0,0,0)",
         plot_bgcolor: "rgba(0,0,0,0)",
-        xaxis: {
-          tickangle: -35,
-          automargin: true,
-          tickfont: { color: "#d1d5db", size: 10 }
-        },
-        yaxis: {
-          tickfont: { color: "#d1d5db", size: 10 },
-          gridcolor: "rgba(55,65,81,0.5)"
-        },
+        xaxis: { tickangle: -35, automargin: true, tickfont: { color: "#d1d5db", size: 10 } },
+        yaxis: { tickfont: { color: "#d1d5db", size: 10 }, gridcolor: "rgba(55,65,81,0.5)" },
         font: { color: "#e5e7eb" }
       };
 
       Plotly.newPlot("mainChart", [trace], layout, { responsive: true });
-
-      const chartTitleEl = document.getElementById("chart-title");
-      chartTitleEl.textContent =
+      document.getElementById("chart-title").textContent =
         metricLabel + " por " + cfg.label + " (top 12)";
     }
 
@@ -608,11 +372,11 @@
       const cfg = getLevelConfig();
       const nameField = cfg.nameField;
       const rows = cfg.data.slice();
-
       const tbody = document.getElementById("detail-tbody");
       tbody.innerHTML = "";
 
-      // Enriquecemos con métricas derivadas CPR, CPM, CPC
+      if (!rows.length) return;
+
       const enriched = rows.map(r => {
         const spend = parseNumber(r["Amount spent (ARS)"]);
         const results = parseNumber(r["Results"]);
@@ -620,33 +384,22 @@
         const cpr = results ? spend / results : 0;
         const cpm = impressions ? (spend / impressions) * 1000 : 0;
         const cpc = results ? spend / results : 0;
-
-        return {
-          ...r,
-          CPR: cpr,
-          CPM: cpm,
-          CPC: cpc,
-          name: r[nameField] || "N/A"
-        };
+        return { ...r, CPR: cpr, CPM: cpm, CPC: cpc, name: r[nameField] || "N/A" };
       });
 
-      // Orden por la métrica principal (o por sortKey si se cambió desde el header)
       const sortKey = state.sortKey || state.metric;
       const dir = state.sortDir === "asc" ? 1 : -1;
 
       enriched.sort((a, b) => {
         if (sortKey === "name") {
-          // ordenar alfabético
           return dir * String(a.name).localeCompare(String(b.name));
         }
         return dir * (parseNumber(a[sortKey]) - parseNumber(b[sortKey]));
       });
 
       enriched.forEach(r => {
-        const tr = document.createElement("tr");
-
         const ctrPercent = parseNumber(r["CTR (all)"]) || 0;
-
+        const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${r.name}</td>
           <td>${formatNumber(r["Results"], 0)}</td>
@@ -665,15 +418,11 @@
     }
 
     function attachTableSortHandlers() {
-      const headers = document
-        .getElementById("detail-table")
-        .querySelectorAll("th.sortable");
-
+      const headers = document.querySelectorAll("#detail-table th.sortable");
       headers.forEach(th => {
         th.addEventListener("click", () => {
           const key = th.dataset.key;
           if (!key) return;
-
           if (state.sortKey === key) {
             state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
           } else {
@@ -686,15 +435,12 @@
     }
 
     function updateDateRangePill() {
-      // Tomamos reporting starts/ends de campañas o adsets
       const dataset = campaignsData.length ? campaignsData : adsetsData;
       if (!dataset.length) return;
-
       const first = dataset[0];
       const start = first["Reporting starts"];
       const end = first["Reporting ends"];
-      const pill = document.getElementById("date-range-pill");
-      pill.textContent = `Rango: ${start} → ${end}`;
+      document.getElementById("date-range-pill").textContent = `Rango: ${start} → ${end}`;
     }
 
     function rebuildDashboard() {
@@ -722,31 +468,27 @@
 
     function initDashboard() {
       let pending = 3;
+      const statusEl = document.getElementById("load-status");
 
-      loadCsv(CSV_FILES.campaigns, data => {
-        campaignsData = data;
-        pending--;
-        if (!pending) rebuildDashboard();
-      });
+      function checkReady() {
+        if (pending === 0) {
+          statusEl.textContent =
+            `✅ Datos cargados · Campañas: ${campaignsData.length} · Ad sets: ${adsetsData.length} · Ads: ${adsData.length}`;
+          if (!campaignsData.length && !adsetsData.length && !adsData.length) {
+            statusEl.textContent += " · ⚠️ Revisa la ruta/nombre de los CSV o que estés usando GitHub Pages.";
+          }
+          rebuildDashboard();
+        }
+      }
 
-      loadCsv(CSV_FILES.adsets, data => {
-        adsetsData = data;
-        pending--;
-        if (!pending) rebuildDashboard();
-      });
+      loadCsv(CSV_FILES.campaigns, data => { campaignsData = data; pending--; checkReady(); });
+      loadCsv(CSV_FILES.adsets, data => { adsetsData = data; pending--; checkReady(); });
+      loadCsv(CSV_FILES.ads, data => { adsData = data; pending--; checkReady(); });
 
-      loadCsv(CSV_FILES.ads, data => {
-        adsData = data;
-        pending--;
-        if (!pending) rebuildDashboard();
-      });
-
-      // Eventos de controles
       document.getElementById("level-select").addEventListener("change", e => {
         state.level = e.target.value;
         rebuildDashboard();
       });
-
       document.getElementById("metric-select").addEventListener("change", e => {
         state.metric = e.target.value;
         state.sortKey = e.target.value;
@@ -761,4 +503,5 @@
   </script>
 </body>
 </html>
+
 
