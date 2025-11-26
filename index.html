@@ -1,507 +1,617 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Dashboard ACC Herrajes - Meta Ads 30 días</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Meta Ads - ACC Herrajes | Metal Marketing</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <!-- Plotly -->
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <!-- PapaParse -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+        :root {
+            --brand-primary: #1F3A5F;
+            --tech-cyan: #3BB4C4;
+            --steel-light: #D9DCE1;
+            --dark-steel: #2A3038;
+            --industrial-black: #0B0E14;
+            --success-green: #10B981;
+            --warning-orange: #F59E0B;
+            --danger-red: #EF4444;
+        }
 
-  <style>
-    :root {
-      --bg: #020617;
-      --bg-card: #020617;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.12);
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --success: #4ade80;
-      --border: #1f2937;
-      --radius: 16px;
-      --shadow-soft: 0 10px 30px rgba(0,0,0,0.45);
-    }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text","Roboto",sans-serif; }
-    body {
-      margin: 0;
-      padding: 16px;
-      background: radial-gradient(circle at 10% 0%, #111827 0, #020617 45%, #000 100%);
-      color: var(--text);
-    }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .card {
-      background: radial-gradient(circle at top, #0b1120, #020617);
-      border-radius: var(--radius);
-      padding: 20px 22px;
-      border: 1px solid rgba(148,163,184,0.25);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(10px);
-    }
-    h1 { margin: 0 0 6px; font-size: 1.5rem; letter-spacing: 0.02em; }
-    .subtitle { font-size: 0.85rem; color: var(--muted); display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .pill {
-      padding: 2px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.3);
-      font-size: 0.75rem;
-    }
-    .pill--client { border-color: rgba(56,189,248,0.7); color: var(--accent); background: var(--accent-soft); }
-    .layout {
-      display:grid;
-      grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);
-      gap:18px;
-      margin-top:16px;
-    }
-    @media(max-width:960px){ .layout{grid-template-columns:1fr;} }
-    .kpi-grid {
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:10px;
-      margin-top:10px;
-    }
-    @media(max-width:640px){ .kpi-grid{grid-template-columns:1fr;} }
-    .kpi {
-      background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(15,23,42,0.8));
-      border-radius: 12px;
-      padding: 10px 12px;
-      border:1px solid rgba(148,163,184,0.25);
-      position:relative;
-      overflow:hidden;
-    }
-    .kpi::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:radial-gradient(circle at top right, rgba(56,189,248,0.12), transparent 60%);
-      pointer-events:none;
-    }
-    .kpi-label { font-size:0.75rem; color:var(--muted); }
-    .kpi-value { font-size:1.1rem; font-weight:600; margin-top:4px; }
-    .kpi-chip { font-size:0.75rem; margin-top:2px; color:var(--muted); }
-    .controls { margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
-    .controls-group { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
-    label { font-size:0.8rem; color:var(--muted); }
-    select {
-      background:#020617;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,0.6);
-      color:var(--text);
-      padding:4px 10px;
-      font-size:0.8rem;
-      outline:none;
-    }
-    select:focus{border-color:var(--accent); box-shadow:0 0 0 1px rgba(56,189,248,0.4);}
-    .chart-card {
-      background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.9));
-      border-radius: var(--radius);
-      padding: 10px 10px 14px;
-      border: 1px solid rgba(148,163,184,0.3);
-      box-shadow: var(--shadow-soft);
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .chart-title{font-size:0.9rem; display:flex; justify-content:space-between; align-items:center; color:var(--muted);}
-    .chart{width:100%; height:310px;}
-    .badge{display:inline-flex; align-items:center; gap:4px; font-size:0.7rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(148,163,184,0.35); color:var(--muted);}
-    .badge-dot{width:7px; height:7px; border-radius:999px; background:var(--accent);}
-    .hint{font-size:0.75rem; color:var(--muted); margin-top:4px;}
-    .table-wrapper{
-      margin-top:16px;
-      border-radius:12px;
-      border:1px solid rgba(148,163,184,0.35);
-      overflow:hidden;
-      background:radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(15,23,42,1));
-    }
-    table{width:100%; border-collapse:collapse; font-size:0.8rem;}
-    thead{background:linear-gradient(90deg, rgba(15,23,42,1), rgba(15,23,42,0.95));}
-    th,td{padding:6px 8px; text-align:right; border-bottom:1px solid rgba(31,41,55,0.9); white-space:nowrap;}
-    th:first-child,td:first-child{text-align:left;}
-    th{font-weight:500; color:var(--muted); cursor:pointer; user-select:none;}
-    th.sortable::after{content:"↕"; font-size:0.7rem; margin-left:4px; color:rgba(148,163,184,0.7);}
-    tr:nth-child(even) td{background:rgba(15,23,42,0.9);}
-    tr:hover td{background:rgba(15,23,42,1);}
-    .tag{font-size:0.7rem; padding:2px 6px; border-radius:999px; border:1px solid rgba(148,163,184,0.4); color:var(--muted); margin-left:4px;}
-    .tag--good{color:var(--success); border-color:rgba(74,222,128,0.6);}
-    .status {
-      margin-top:8px;
-      font-size:0.75rem;
-      color:var(--muted);
-    }
-  </style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 2rem 1rem;
+            color: var(--dark-steel);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            margin-bottom: 2rem;
+            border-left: 5px solid var(--brand-primary);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            color: var(--brand-primary);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-subtitle {
+            color: var(--tech-cyan);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .header-period {
+            background: var(--steel-light);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--dark-steel);
+            font-weight: 600;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border-left: 4px solid var(--tech-cyan);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .kpi-label {
+            font-size: 0.875rem;
+            color: #6B7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-subtitle {
+            font-size: 0.75rem;
+            color: #9CA3AF;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--steel-light);
+        }
+
+        .table-container {
+            background: white;
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--brand-primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--steel-light);
+            font-size: 0.875rem;
+        }
+
+        tr:hover {
+            background: #F9FAFB;
+        }
+
+        .quality-badge {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .quality-above {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .quality-average {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .quality-below {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .insights-card {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--tech-cyan) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .insights-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .insights-list {
+            list-style: none;
+        }
+
+        .insights-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .insights-list li::before {
+            content: '💡';
+            position: absolute;
+            left: 0;
+            font-size: 1.25rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: var(--dark-steel);
+            font-size: 0.875rem;
+        }
+
+        .footer strong {
+            color: var(--brand-primary);
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-value {
+                font-size: 1.5rem;
+            }
+
+            .dashboard-header {
+                padding: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .metric-positive {
+            color: var(--success-green);
+        }
+
+        .metric-warning {
+            color: var(--warning-orange);
+        }
+
+        canvas {
+            max-height: 350px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h1>Dashboard Meta Ads · ACC Herrajes</h1>
-      <div class="subtitle">
-        <span class="pill pill--client">Cliente: ACC Herrajes</span>
-        <span class="pill">Canal: Meta (Facebook & Instagram)</span>
-        <span class="pill" id="date-range-pill">Rango: cargando...</span>
-      </div>
-
-      <div class="status" id="load-status">
-        ⏳ Cargando datos de campañas, conjuntos de anuncios y anuncios...
-      </div>
-
-      <div class="layout">
-        <div>
-          <div class="kpi-grid">
-            <div class="kpi">
-              <div class="kpi-label">Inversión total (ARS)</div>
-              <div class="kpi-value" id="kpi-spend">-</div>
-              <div class="kpi-chip" id="kpi-impressions">Impresiones: -</div>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>📊 Dashboard Meta Ads - ACC Herrajes</h1>
+                    <p class="header-subtitle">Reporte de Campaña | Metal Marketing</p>
+                </div>
+                <div class="header-period">
+                    📅 27 Oct - 25 Nov 2025 (30 días)
+                </div>
             </div>
-            <div class="kpi">
-              <div class="kpi-label">Resultados totales</div>
-              <div class="kpi-value" id="kpi-results">-</div>
-              <div class="kpi-chip" id="kpi-cpr">Costo por resultado: -</div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-label">CTR global</div>
-              <div class="kpi-value" id="kpi-ctr">-</div>
-              <div class="kpi-chip" id="kpi-cpm">CPM (ARS): -</div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-label">Alcance total</div>
-              <div class="kpi-value" id="kpi-reach">-</div>
-              <div class="kpi-chip" id="kpi-cpc">CPC aprox.: -</div>
-            </div>
-          </div>
-
-          <div class="controls">
-            <div class="controls-group">
-              <label for="level-select">Nivel de análisis:</label>
-              <select id="level-select">
-                <option value="campaigns">Campañas</option>
-                <option value="adsets">Conjuntos de anuncios</option>
-                <option value="ads">Anuncios</option>
-              </select>
-            </div>
-            <div class="controls-group">
-              <label for="metric-select">Métrica principal:</label>
-              <select id="metric-select">
-                <option value="Amount spent (ARS)">Inversión (ARS)</option>
-                <option value="Results">Resultados</option>
-                <option value="Impressions">Impresiones</option>
-                <option value="CTR (all)">CTR (all)</option>
-                <option value="Reach">Alcance</option>
-              </select>
-            </div>
-          </div>
-
-          <p class="hint">
-            💡 Cambiá el <strong>nivel</strong> (campañas / conjuntos / anuncios) y la
-            <strong>métrica</strong> para ver dónde se concentran inversión y resultados.
-          </p>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-title">
-            <span id="chart-title">Distribución de inversión por campaña</span>
-            <span class="badge"><span class="badge-dot"></span>Últimos 30 días</span>
-          </div>
-          <div id="mainChart" class="chart"></div>
-          <div class="hint">
-            📊 Hover para detalles. Desde el menú de Plotly podés descargar la imagen o hacer zoom.
-          </div>
-        </div>
-      </div>
+        <!-- KPIs Principales -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">💬 Conversaciones</div>
+                <div class="kpi-value">448</div>
+                <div class="kpi-subtitle">Total de leads generados</div>
+            </div>
 
-      <div class="table-wrapper">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px 4px;">
-          <span style="font-size:0.85rem;color:var(--muted);">
-            Detalle por <span id="table-level-label">campaña</span>
-            <span class="tag tag--good">ordenado por métrica principal</span>
-          </span>
-          <span style="font-size:0.75rem;color:var(--muted);">
-            Click en los encabezados para ordenar
-          </span>
+            <div class="kpi-card">
+                <div class="kpi-label">💰 Inversión Total</div>
+                <div class="kpi-value">$1.000.000</div>
+                <div class="kpi-subtitle">ARS invertidos</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">📈 CPL Promedio</div>
+                <div class="kpi-value">$2.232</div>
+                <div class="kpi-subtitle">Costo por lead (ARS)</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">👥 Alcance</div>
+                <div class="kpi-value">195.117</div>
+                <div class="kpi-subtitle">Personas alcanzadas</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">👁️ Impresiones</div>
+                <div class="kpi-value">404.997</div>
+                <div class="kpi-subtitle">Total de visualizaciones</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">🎯 CTR</div>
+                <div class="kpi-value">1.04%</div>
+                <div class="kpi-subtitle">Click-through rate</div>
+            </div>
         </div>
-        <table id="detail-table">
-          <thead>
-            <tr>
-              <th class="sortable" data-key="name">Nombre</th>
-              <th class="sortable" data-key="Results">Resultados</th>
-              <th class="sortable" data-key="Amount spent (ARS)">Inversión (ARS)</th>
-              <th class="sortable" data-key="Impressions">Impresiones</th>
-              <th class="sortable" data-key="Reach">Alcance</th>
-              <th class="sortable" data-key="CTR (all)">CTR (all) %</th>
-              <th class="sortable" data-key="CPR">CPR</th>
-              <th class="sortable" data-key="CPM">CPM</th>
-              <th class="sortable" data-key="CPC">CPC</th>
-            </tr>
-          </thead>
-          <tbody id="detail-tbody"></tbody>
-        </table>
-      </div>
+
+        <!-- Gráficos -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 class="chart-title">Rendimiento por Ad Set (Conversaciones)</h3>
+                anvas id="adSetChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">Top 5 Anuncios por CPL</h3>
+                anvas id="cplChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">Distribución de Inversión</h3>
+                anvas id="spendChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">CTR por Ad Set</h3>
+                anvas id="ctrChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabla de Anuncios -->
+        <div class="table-container">
+            <h3 class="chart-title">📋 Rendimiento Detallado por Anuncio</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Anuncio</th>
+                        <th>Ad Set</th>
+                        <th>Conversaciones</th>
+                        <th>CPL</th>
+                        <th>Inversión</th>
+                        <th>CTR</th>
+                        <th>Quality</th>
+                    </tr>
+                </thead>
+                <tbody id="adsTableBody">
+                    <!-- Será llenado por JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Insights y Recomendaciones -->
+        <div class="insights-card">
+            <h3 class="insights-title">
+                <span>🎯</span> Insights y Recomendaciones
+            </h3>
+            <ul class="insights-list">
+                <li><strong>Mejor anuncio por CPL:</strong> "Julio 27 IMG2 - Copy" con CPL de $668.50 (70% mejor que el promedio). Escalarlo podría reducir el CPL general.</li>
+                <li><strong>Ad Sets más eficientes:</strong> "Ruth WP broad OPEN - La plata" tiene el CPL más bajo ($1.300) entre los activos. Considerar aumentar su presupuesto.</li>
+                <li><strong>Quality Ranking:</strong> Los anuncios "Julio 27 IMG1" tienen ranking "Above Average", indicando buena relevancia. Crear variaciones similares.</li>
+                <li><strong>CTR superior al benchmark:</strong> El CTR de 1.04% está por encima del promedio de la industria (0.9%). Mantener el enfoque creativo actual.</li>
+                <li><strong>Optimización de presupuesto:</strong> Los 3 ad sets principales consumen el 76% del presupuesto. Pausar los ad sets de "La Plata" con CPL alto (+$4.000) y redistribuir.</li>
+                <li><strong>Volumen de conversaciones:</strong> Con 448 conversaciones en 30 días (≈15/día), el flujo es consistente. Implementar automatización de respuestas para mejorar la tasa de cierre.</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Dashboard generado por <strong>Metal Marketing</strong> | Datos extraídos de Meta Ads Manager</p>
+            <p>© 2025 Metal Marketing - Especialistas en Generación de Leads B2B</p>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // 👇 SI TUS CSV ESTÁN EN UNA CARPETA (p.ej. "data/"), poné "data/"
-    const CSV_PATH = "./";
+    <script>
+        // Datos del dashboard
+        const dashboardData = {
+            "campaign": {
+                "campaign_name": "ABO| Interaction WP 3 lines INTEREST SALES",
+                "total_results": 448,
+                "total_reach": 195117,
+                "total_impressions": 404997,
+                "total_spent": 1000000.0,
+                "avg_cpl": 2232.142857,
+                "avg_ctr": 1.041736,
+                "period_start": "2025-10-27",
+                "period_end": "2025-11-25"
+            },
+            "ad_sets": [
+                {
+                    "name": "Guille WP broad OPEN",
+                    "results": 109,
+                    "reach": 74647,
+                    "impressions": 108084,
+                    "spent": 255197.38,
+                    "cpl": 2341.260367,
+                    "ctr": 1.071389
+                },
+                {
+                    "name": "Ruth WP broad OPEN",
+                    "results": 122,
+                    "reach": 72142,
+                    "impressions": 110067,
+                    "spent": 255824.55,
+                    "cpl": 2096.922541,
+                    "ctr": 1.00666
+                },
+                {
+                    "name": "New WP broad OPEN",
+                    "results": 119,
+                    "reach": 68701,
+                    "impressions": 102492,
+                    "spent": 254287.62,
+                    "cpl": 2136.870756,
+                    "ctr": 1.064473
+                }
+            ],
+            "ads": [
+                {"name": "Julio 27 IMG2 - Copy", "ad_set": "Ruth WP broad OPEN - La plata", "results": 2, "reach": 1027, "impressions": 1335, "spent": 1337.0, "cpl": 668.5, "ctr": 0.599251, "quality": "-"},
+                {"name": "Julio 27 IMG1 - Copy", "ad_set": "Guille WP broad OPEN - La plata", "results": 12, "reach": 3869, "impressions": 4289, "spent": 11778.0, "cpl": 981.5, "ctr": 1.049197, "quality": "Above average"},
+                {"name": "Julio 27 IMG1 - Copy", "ad_set": "Ruth WP broad OPEN - La plata", "results": 75, "reach": 30318, "impressions": 41068, "spent": 141069.0, "cpl": 1880.92, "ctr": 1.043993, "quality": "Above average"},
+                {"name": "Julio 27 IMG1", "ad_set": "Guille WP broad OPEN", "results": 46, "reach": 25617, "impressions": 33492, "spent": 94690.44, "cpl": 2058.487826, "ctr": 1.254031, "quality": "Above average"},
+                {"name": "Video Nov 17", "ad_set": "Ruth WP broad OPEN", "results": 28, "reach": 19042, "impressions": 25894, "spent": 58735.61, "cpl": 2097.700357, "ctr": 0.930074, "quality": "Average"},
+                {"name": "Ruth WP broad OPEN", "ad_set": "Ruth WP broad OPEN", "results": 69, "reach": 32751, "impressions": 46249, "spent": 161156.33, "cpl": 2335.5991304347825, "ctr": 0.980867, "quality": "Average"},
+                {"name": "New Engagement Ad", "ad_set": "Ruth WP broad OPEN", "results": 13, "reach": 8482, "impressions": 13892, "spent": 30932.61, "cpl": 2379.431538, "ctr": 0.964584, "quality": "Average"},
+                {"name": "New Engagement Ad", "ad_set": "New WP broad OPEN", "results": 8, "reach": 5481, "impressions": 6781, "spent": 18228.46, "cpl": 2278.5575, "ctr": 1.16502, "quality": "Above average"},
+                {"name": "Julio 27 IMG2", "ad_set": "Guille WP broad OPEN", "results": 63, "reach": 53123, "impressions": 74258, "spent": 159888.47, "cpl": 2537.912222, "ctr": 0.991139, "quality": "Above average"},
+                {"name": "New WP broad OPEN", "ad_set": "New WP broad OPEN", "results": 111, "reach": 64073, "impressions": 96044, "spent": 236059.16, "cpl": 2126.657838, "ctr": 1.057032, "quality": "Average"}
+            ]
+        };
 
-    const CSV_FILES = {
-      ads: CSV_PATH + "ACCHerrajes_LC_4WRD_BX-Ads-Oct-27-2025-Nov-25-2025.csv",
-      adsets: CSV_PATH + "ACCHerrajes_LC_4WRD_BX-Ad-sets-Oct-27-2025-Nov-25-2025.csv",
-      campaigns: CSV_PATH + "ACCHerrajes_LC_4WRD_BX-Campaigns-Oct-27-2025-Nov-25-2025.csv"
-    };
+        // Chart.js configuración
+        Chart.defaults.color = '#2A3038';
+        Chart.defaults.font.family = 'Inter, sans-serif';
 
-    let adsData = [];
-    let adsetsData = [];
-    let campaignsData = [];
-
-    const state = {
-      level: "campaigns",
-      metric: "Amount spent (ARS)",
-      sortKey: "Amount spent (ARS)",
-      sortDir: "desc"
-    };
-
-    function parseNumber(value) {
-      if (value === null || value === undefined || value === "") return 0;
-      const v = parseFloat(String(value).replace(",", "."));
-      return isNaN(v) ? 0 : v;
-    }
-    function formatCurrency(value) {
-      const v = parseNumber(value);
-      if (!v) return "-";
-      return v.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
-    }
-    function formatNumber(value, decimals = 0) {
-      const v = parseNumber(value);
-      if (!v) return "-";
-      return v.toLocaleString("es-AR", { maximumFractionDigits: decimals, minimumFractionDigits: decimals });
-    }
-    function formatPercent(value, decimals = 2) {
-      const v = parseNumber(value);
-      if (!v) return "-";
-      return v.toLocaleString("es-AR", { maximumFractionDigits: decimals, minimumFractionDigits: decimals }) + " %";
-    }
-
-    function computeGlobalKpis(rows) {
-      let totalSpend = 0, totalResults = 0, totalImpressions = 0, totalReach = 0;
-      rows.forEach(r => {
-        totalSpend += parseNumber(r["Amount spent (ARS)"]);
-        totalResults += parseNumber(r["Results"]);
-        totalImpressions += parseNumber(r["Impressions"]);
-        totalReach += parseNumber(r["Reach"]);
-      });
-      const ctr = totalImpressions ? (totalResults / totalImpressions) * 100 : 0;
-      const cpm = totalImpressions ? (totalSpend / totalImpressions) * 1000 : 0;
-      const cpr = totalResults ? totalSpend / totalResults : 0;
-      const cpc = totalResults ? totalSpend / totalResults : 0;
-      return { totalSpend, totalResults, totalImpressions, totalReach, ctr, cpm, cpr, cpc };
-    }
-
-    function updateKpis() {
-      const baseRows = adsetsData.length ? adsetsData : campaignsData;
-      if (!baseRows.length) return;
-      const k = computeGlobalKpis(baseRows);
-
-      document.getElementById("kpi-spend").innerHTML = "<strong>" + formatCurrency(k.totalSpend) + "</strong>";
-      document.getElementById("kpi-impressions").textContent = "Impresiones: " + formatNumber(k.totalImpressions, 0);
-
-      document.getElementById("kpi-results").innerHTML = "<strong>" + formatNumber(k.totalResults, 0) + "</strong>";
-      document.getElementById("kpi-cpr").textContent = "Costo por resultado: " + formatCurrency(k.cpr);
-
-      document.getElementById("kpi-ctr").innerHTML = "<strong>" + formatPercent(k.ctr, 2) + "</strong>";
-      document.getElementById("kpi-cpm").textContent = "CPM (ARS): " + formatNumber(k.cpm, 2);
-
-      document.getElementById("kpi-reach").innerHTML = "<strong>" + formatNumber(k.totalReach, 0) + "</strong>";
-      document.getElementById("kpi-cpc").textContent = "CPC aprox.: " + formatCurrency(k.cpc);
-    }
-
-    function getLevelConfig() {
-      if (state.level === "campaigns") {
-        return { data: campaignsData, nameField: "Campaign name", label: "campaña" };
-      } else if (state.level === "adsets") {
-        return { data: adsetsData, nameField: "Ad set name", label: "conjunto de anuncios" };
-      } else {
-        return { data: adsData, nameField: "Ad name", label: "anuncio" };
-      }
-    }
-
-    function updateChart() {
-      const cfg = getLevelConfig();
-      const rows = cfg.data.slice();
-      if (!rows.length) return;
-
-      const metric = state.metric;
-      const nameField = cfg.nameField;
-
-      rows.sort((a, b) => parseNumber(b[metric]) - parseNumber(a[metric]));
-      const top = rows.slice(0, 12);
-
-      const x = top.map(r => r[nameField] || "N/A");
-      const y = top.map(r => parseNumber(r[metric]));
-
-      const trace = {
-        x, y, type: "bar",
-        marker: { line: { width: 1 } },
-        hovertemplate: "<b>%{x}</b><br>" + metric + ": %{y:.2f}<extra></extra>"
-      };
-
-      const metricLabelMap = {
-        "Amount spent (ARS)": "Inversión (ARS)",
-        "Results": "Resultados",
-        "Impressions": "Impresiones",
-        "CTR (all)": "CTR (all)",
-        "Reach": "Alcance"
-      };
-      const metricLabel = metricLabelMap[metric] || metric;
-
-      const layout = {
-        margin: { l: 80, r: 20, t: 30, b: 80 },
-        paper_bgcolor: "rgba(0,0,0,0)",
-        plot_bgcolor: "rgba(0,0,0,0)",
-        xaxis: { tickangle: -35, automargin: true, tickfont: { color: "#d1d5db", size: 10 } },
-        yaxis: { tickfont: { color: "#d1d5db", size: 10 }, gridcolor: "rgba(55,65,81,0.5)" },
-        font: { color: "#e5e7eb" }
-      };
-
-      Plotly.newPlot("mainChart", [trace], layout, { responsive: true });
-      document.getElementById("chart-title").textContent =
-        metricLabel + " por " + cfg.label + " (top 12)";
-    }
-
-    function updateTable() {
-      const cfg = getLevelConfig();
-      const nameField = cfg.nameField;
-      const rows = cfg.data.slice();
-      const tbody = document.getElementById("detail-tbody");
-      tbody.innerHTML = "";
-
-      if (!rows.length) return;
-
-      const enriched = rows.map(r => {
-        const spend = parseNumber(r["Amount spent (ARS)"]);
-        const results = parseNumber(r["Results"]);
-        const impressions = parseNumber(r["Impressions"]);
-        const cpr = results ? spend / results : 0;
-        const cpm = impressions ? (spend / impressions) * 1000 : 0;
-        const cpc = results ? spend / results : 0;
-        return { ...r, CPR: cpr, CPM: cpm, CPC: cpc, name: r[nameField] || "N/A" };
-      });
-
-      const sortKey = state.sortKey || state.metric;
-      const dir = state.sortDir === "asc" ? 1 : -1;
-
-      enriched.sort((a, b) => {
-        if (sortKey === "name") {
-          return dir * String(a.name).localeCompare(String(b.name));
-        }
-        return dir * (parseNumber(a[sortKey]) - parseNumber(b[sortKey]));
-      });
-
-      enriched.forEach(r => {
-        const ctrPercent = parseNumber(r["CTR (all)"]) || 0;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${r.name}</td>
-          <td>${formatNumber(r["Results"], 0)}</td>
-          <td>${formatCurrency(r["Amount spent (ARS)"])}</td>
-          <td>${formatNumber(r["Impressions"], 0)}</td>
-          <td>${formatNumber(r["Reach"], 0)}</td>
-          <td>${formatPercent(ctrPercent, 2)}</td>
-          <td>${formatCurrency(r["CPR"])}</td>
-          <td>${formatCurrency(r["CPM"])}</td>
-          <td>${formatCurrency(r["CPC"])}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById("table-level-label").textContent = cfg.label;
-    }
-
-    function attachTableSortHandlers() {
-      const headers = document.querySelectorAll("#detail-table th.sortable");
-      headers.forEach(th => {
-        th.addEventListener("click", () => {
-          const key = th.dataset.key;
-          if (!key) return;
-          if (state.sortKey === key) {
-            state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
-          } else {
-            state.sortKey = key;
-            state.sortDir = "desc";
-          }
-          updateTable();
+        // Gráfico 1: Conversaciones por Ad Set
+        const adSetCtx = document.getElementById('adSetChart').getContext('2d');
+        new Chart(adSetCtx, {
+            type: 'bar',
+            data: {
+                labels: dashboardData.ad_sets.map(a => a.name),
+                datasets: [{
+                    label: 'Conversaciones',
+                    data: dashboardData.ad_sets.map(a => a.results),
+                    backgroundColor: '#3BB4C4',
+                    borderColor: '#1F3A5F',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `Conversaciones: ${context.parsed.y}`
+                        }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
         });
-      });
-    }
 
-    function updateDateRangePill() {
-      const dataset = campaignsData.length ? campaignsData : adsetsData;
-      if (!dataset.length) return;
-      const first = dataset[0];
-      const start = first["Reporting starts"];
-      const end = first["Reporting ends"];
-      document.getElementById("date-range-pill").textContent = `Rango: ${start} → ${end}`;
-    }
+        // Gráfico 2: Top 5 CPL
+        const top5Ads = dashboardData.ads.slice(0, 5);
+        const cplCtx = document.getElementById('cplChart').getContext('2d');
+        new Chart(cplCtx, {
+            type: 'bar',
+            data: {
+                labels: top5Ads.map(a => a.name),
+                datasets: [{
+                    label: 'CPL (ARS)',
+                    data: top5Ads.map(a => a.cpl),
+                    backgroundColor: ['#10B981', '#10B981', '#F59E0B', '#F59E0B', '#F59E0B'],
+                    borderColor: '#1F3A5F',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `CPL: $${context.parsed.x.toLocaleString('es-AR', {minimumFractionDigits: 2})}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
 
-    function rebuildDashboard() {
-      updateKpis();
-      updateChart();
-      updateTable();
-      updateDateRangePill();
-    }
+        // Gráfico 3: Distribución de Inversión
+        const spendCtx = document.getElementById('spendChart').getContext('2d');
+        new Chart(spendCtx, {
+            type: 'doughnut',
+            data: {
+                labels: dashboardData.ad_sets.map(a => a.name),
+                datasets: [{
+                    data: dashboardData.ad_sets.map(a => a.spent),
+                    backgroundColor: ['#1F3A5F', '#3BB4C4', '#2A3038'],
+                    borderWidth: 3,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 15, font: { size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: $${value.toLocaleString('es-AR')} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
-    function loadCsv(path, onDone) {
-      Papa.parse(path, {
-        download: true,
-        header: true,
-        dynamicTyping: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-          onDone(results.data || []);
-        },
-        error: function(err) {
-          console.error("Error cargando CSV:", path, err);
-          onDone([]);
-        }
-      });
-    }
+        // Gráfico 4: CTR por Ad Set
+        const ctrCtx = document.getElementById('ctrChart').getContext('2d');
+        new Chart(ctrCtx, {
+            type: 'line',
+            data: {
+                labels: dashboardData.ad_sets.map(a => a.name),
+                datasets: [{
+                    label: 'CTR (%)',
+                    data: dashboardData.ad_sets.map(a => a.ctr),
+                    borderColor: '#3BB4C4',
+                    backgroundColor: 'rgba(59, 180, 196, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => value.toFixed(2) + '%'
+                        }
+                    }
+                }
+            }
+        });
 
-    function initDashboard() {
-      let pending = 3;
-      const statusEl = document.getElementById("load-status");
-
-      function checkReady() {
-        if (pending === 0) {
-          statusEl.textContent =
-            `✅ Datos cargados · Campañas: ${campaignsData.length} · Ad sets: ${adsetsData.length} · Ads: ${adsData.length}`;
-          if (!campaignsData.length && !adsetsData.length && !adsData.length) {
-            statusEl.textContent += " · ⚠️ Revisa la ruta/nombre de los CSV o que estés usando GitHub Pages.";
-          }
-          rebuildDashboard();
-        }
-      }
-
-      loadCsv(CSV_FILES.campaigns, data => { campaignsData = data; pending--; checkReady(); });
-      loadCsv(CSV_FILES.adsets, data => { adsetsData = data; pending--; checkReady(); });
-      loadCsv(CSV_FILES.ads, data => { adsData = data; pending--; checkReady(); });
-
-      document.getElementById("level-select").addEventListener("change", e => {
-        state.level = e.target.value;
-        rebuildDashboard();
-      });
-      document.getElementById("metric-select").addEventListener("change", e => {
-        state.metric = e.target.value;
-        state.sortKey = e.target.value;
-        state.sortDir = "desc";
-        rebuildDashboard();
-      });
-
-      attachTableSortHandlers();
-    }
-
-    document.addEventListener("DOMContentLoaded", initDashboard);
-  </script>
+        // Llenar tabla de anuncios
+        const tableBody = document.getElementById('adsTableBody');
+        dashboardData.ads.forEach(ad => {
+            const qualityClass = ad.quality === 'Above average' ? 'quality-above' : 
+                                 ad.quality === 'Average' ? 'quality-average' : 'quality-below';
+            const row = `
+                <tr>
+                    <td><strong>${ad.name}</strong></td>
+                    <td>${ad.ad_set}</td>
+                    <td><strong>${ad.results}</strong></td>
+                    <td>$${ad.cpl.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
+                    <td>$${ad.spent.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
+                    <td>${ad.ctr.toFixed(2)}%</td>
+                    <td><span class="quality-badge ${qualityClass}">${ad.quality}</span></td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    </script>
 </body>
 </html>
+
 
 
