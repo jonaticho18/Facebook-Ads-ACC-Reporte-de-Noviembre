@@ -166,4 +166,599 @@
     }
 
     select {
-      backgroun
+      background: #020617;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.4);
+    }
+
+    .chart-card {
+      background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.85));
+      border-radius: var(--radius);
+      padding: 10px 10px 14px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+    }
+
+    .chart-title {
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+    }
+
+    .chart {
+      width: 100%;
+      height: 310px;
+    }
+
+    .table-wrapper {
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      overflow: hidden;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.9), rgba(15,23,42,0.98));
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    thead {
+      background: linear-gradient(90deg, rgba(15,23,42,1), rgba(15,23,42,0.9));
+    }
+
+    th, td {
+      padding: 6px 8px;
+      text-align: right;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+      white-space: nowrap;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    th.sortable::after {
+      content: "↕";
+      font-size: 0.7rem;
+      margin-left: 4px;
+      color: rgba(148,163,184,0.7);
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(15,23,42,0.85);
+    }
+
+    tr:hover td {
+      background: rgba(15,23,42,1);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.35);
+      color: var(--muted);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .tag--good {
+      color: var(--success);
+      border-color: rgba(74,222,128,0.6);
+    }
+
+    .tag--warn {
+      color: #facc15;
+      border-color: rgba(250,204,21,0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Dashboard Meta Ads · ACC Herrajes</h1>
+      <div class="subtitle">
+        <span class="pill pill--client">Cliente: ACC Herrajes</span>
+        <span class="pill">Canal: Meta (Facebook & Instagram)</span>
+        <span class="pill" id="date-range-pill">Rango: cargando...</span>
+      </div>
+
+      <div class="layout">
+        <!-- Panel izquierdo: KPIs + Controles -->
+        <div>
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-label">Inversión total (ARS)</div>
+              <div class="kpi-value" id="kpi-spend">-</div>
+              <div class="kpi-chip" id="kpi-impressions">Impresiones: -</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Resultados totales</div>
+              <div class="kpi-value" id="kpi-results">-</div>
+              <div class="kpi-chip" id="kpi-cpr">Costo por resultado: -</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">CTR global</div>
+              <div class="kpi-value" id="kpi-ctr">-</div>
+              <div class="kpi-chip" id="kpi-cpm">CPM (ARS): -</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Alcance total</div>
+              <div class="kpi-value" id="kpi-reach">-</div>
+              <div class="kpi-chip" id="kpi-cpc">CPC aprox.: -</div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="controls-group">
+              <label for="level-select">Nivel de análisis:</label>
+              <select id="level-select">
+                <option value="campaigns">Campañas</option>
+                <option value="adsets">Conjuntos de anuncios</option>
+                <option value="ads">Anuncios</option>
+              </select>
+            </div>
+            <div class="controls-group">
+              <label for="metric-select">Métrica principal:</label>
+              <select id="metric-select">
+                <option value="Amount spent (ARS)">Inversión (ARS)</option>
+                <option value="Results">Resultados</option>
+                <option value="Impressions">Impresiones</option>
+                <option value="CTR (all)">CTR (all)</option>
+                <option value="Reach">Alcance</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="hint">
+            💡 Consejo: cambia el <strong>nivel</strong> (campaña / conjunto / anuncio) y la
+            <strong>métrica principal</strong> para detectar dónde se concentran el gasto y los resultados.
+          </p>
+        </div>
+
+        <!-- Panel derecho: gráfico principal -->
+        <div class="chart-card">
+          <div class="chart-title">
+            <span id="chart-title">Distribución de inversión por campaña</span>
+            <span class="badge">
+              <span class="badge-dot"></span> Datos últimos 30 días
+            </span>
+          </div>
+          <div id="mainChart" class="chart"></div>
+          <div class="hint">
+            📊 Haz hover sobre las barras para ver detalles. Usa el menú de Plotly (arriba a la derecha)
+            para descargar la imagen o hacer zoom.
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla detalle -->
+      <div class="table-wrapper" style="margin-top:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px 4px;">
+          <span style="font-size:0.85rem;color:var(--muted);">
+            Detalle por <span id="table-level-label">campaña</span>
+            <span class="tag tag--good">ordenado por métrica principal</span>
+          </span>
+          <span style="font-size:0.75rem;color:var(--muted);">
+            Click en los encabezados para ordenar columnas
+          </span>
+        </div>
+        <table id="detail-table">
+          <thead>
+            <tr>
+              <th class="sortable" data-key="name">Nombre</th>
+              <th class="sortable" data-key="Results">Resultados</th>
+              <th class="sortable" data-key="Amount spent (ARS)">Inversión (ARS)</th>
+              <th class="sortable" data-key="Impressions">Impresiones</th>
+              <th class="sortable" data-key="Reach">Alcance</th>
+              <th class="sortable" data-key="CTR (all)">CTR (all) %</th>
+              <th class="sortable" data-key="CPR">CPR</th>
+              <th class="sortable" data-key="CPM">CPM</th>
+              <th class="sortable" data-key="CPC">CPC</th>
+            </tr>
+          </thead>
+          <tbody id="detail-tbody">
+            <!-- Se llena por JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === CONFIGURACIÓN DE ARCHIVOS CSV (asumiendo que están en la misma carpeta que este HTML) ===
+    const CSV_FILES = {
+      ads: "ACCHerrajes_LC_4WRD_BX-Ads-Oct-27-2025-Nov-25-2025.csv",
+      adsets: "ACCHerrajes_LC_4WRD_BX-Ad-sets-Oct-27-2025-Nov-25-2025.csv",
+      campaigns: "ACCHerrajes_LC_4WRD_BX-Campaigns-Oct-27-2025-Nov-25-2025.csv"
+    };
+
+    let adsData = [];
+    let adsetsData = [];
+    let campaignsData = [];
+
+    const state = {
+      level: "campaigns",
+      metric: "Amount spent (ARS)",
+      sortKey: "Amount spent (ARS)",
+      sortDir: "desc"
+    };
+
+    function parseNumber(value) {
+      const v = parseFloat(String(value).replace(",", "."));
+      return isNaN(v) ? 0 : v;
+    }
+
+    function formatCurrency(value) {
+      const v = parseNumber(value);
+      if (!v) return "-";
+      return v.toLocaleString("es-AR", {
+        style: "currency",
+        currency: "ARS",
+        maximumFractionDigits: 0
+      });
+    }
+
+    function formatNumber(value, decimals = 0) {
+      const v = parseNumber(value);
+      if (!v) return "-";
+      return v.toLocaleString("es-AR", {
+        maximumFractionDigits: decimals,
+        minimumFractionDigits: decimals
+      });
+    }
+
+    function formatPercent(value, decimals = 2) {
+      const v = parseNumber(value);
+      if (!v) return "-";
+      return (v).toLocaleString("es-AR", {
+        maximumFractionDigits: decimals,
+        minimumFractionDigits: decimals
+      }) + " %";
+    }
+
+    function computeGlobalKpis(rows) {
+      let totalSpend = 0;
+      let totalResults = 0;
+      let totalImpressions = 0;
+      let totalReach = 0;
+
+      rows.forEach(r => {
+        totalSpend += parseNumber(r["Amount spent (ARS)"]);
+        totalResults += parseNumber(r["Results"]);
+        totalImpressions += parseNumber(r["Impressions"]);
+        totalReach += parseNumber(r["Reach"]);
+      });
+
+      const ctr = totalImpressions ? (totalResults / totalImpressions) * 100 : 0;
+      const cpm = totalImpressions ? (totalSpend / totalImpressions) * 1000 : 0;
+      const cpr = totalResults ? totalSpend / totalResults : 0;
+      const cpc = totalResults ? totalSpend / totalResults : 0; // aprox igual CPR si "Result" = clic/conversación
+
+      return {
+        totalSpend,
+        totalResults,
+        totalImpressions,
+        totalReach,
+        ctr,
+        cpm,
+        cpr,
+        cpc
+      };
+    }
+
+    function updateKpis() {
+      // Para KPIs globales usamos el nivel de conjuntos (si hay) o campañas
+      const baseRows = adsetsData.length ? adsetsData : campaignsData;
+      const k = computeGlobalKpis(baseRows);
+
+      document.getElementById("kpi-spend").innerHTML =
+        "<strong>" + formatCurrency(k.totalSpend) + "</strong>";
+      document.getElementById("kpi-impressions").textContent =
+        "Impresiones: " + formatNumber(k.totalImpressions, 0);
+
+      document.getElementById("kpi-results").innerHTML =
+        "<strong>" + formatNumber(k.totalResults, 0) + "</strong>";
+      document.getElementById("kpi-cpr").textContent =
+        "Costo por resultado: " + formatCurrency(k.cpr);
+
+      document.getElementById("kpi-ctr").innerHTML =
+        "<strong>" + formatPercent(k.ctr, 2) + "</strong>";
+      document.getElementById("kpi-cpm").textContent =
+        "CPM (ARS): " + formatNumber(k.cpm, 2);
+
+      document.getElementById("kpi-reach").innerHTML =
+        "<strong>" + formatNumber(k.totalReach, 0) + "</strong>";
+      document.getElementById("kpi-cpc").textContent =
+        "CPC aprox.: " + formatCurrency(k.cpc);
+    }
+
+    function getLevelConfig() {
+      if (state.level === "campaigns") {
+        return {
+          data: campaignsData,
+          nameField: "Campaign name",
+          label: "campaña"
+        };
+      } else if (state.level === "adsets") {
+        return {
+          data: adsetsData,
+          nameField: "Ad set name",
+          label: "conjunto de anuncios"
+        };
+      } else {
+        return {
+          data: adsData,
+          nameField: "Ad name",
+          label: "anuncio"
+        };
+      }
+    }
+
+    function updateChart() {
+      const cfg = getLevelConfig();
+      const rows = cfg.data.slice(); // copia
+
+      const metric = state.metric;
+      const nameField = cfg.nameField;
+
+      // Ordenar por métrica (desc)
+      rows.sort((a, b) => parseNumber(b[metric]) - parseNumber(a[metric]));
+
+      // Limitamos a top 12 para que el gráfico sea legible
+      const top = rows.slice(0, 12);
+
+      const x = top.map(r => r[nameField] || "N/A");
+      const y = top.map(r => parseNumber(r[metric]));
+
+      const trace = {
+        x,
+        y,
+        type: "bar",
+        marker: {
+          line: { width: 1 }
+        },
+        hovertemplate:
+          "<b>%{x}</b><br>" +
+          metric + ": %{y:.2f}<extra></extra>"
+      };
+
+      const metricLabelMap = {
+        "Amount spent (ARS)": "Inversión (ARS)",
+        "Results": "Resultados",
+        "Impressions": "Impresiones",
+        "CTR (all)": "CTR (all)",
+        "Reach": "Alcance"
+      };
+
+      const metricLabel = metricLabelMap[metric] || metric;
+
+      const layout = {
+        margin: { l: 80, r: 20, t: 30, b: 80 },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        xaxis: {
+          tickangle: -35,
+          automargin: true,
+          tickfont: { color: "#d1d5db", size: 10 }
+        },
+        yaxis: {
+          tickfont: { color: "#d1d5db", size: 10 },
+          gridcolor: "rgba(55,65,81,0.5)"
+        },
+        font: { color: "#e5e7eb" }
+      };
+
+      Plotly.newPlot("mainChart", [trace], layout, { responsive: true });
+
+      const chartTitleEl = document.getElementById("chart-title");
+      chartTitleEl.textContent =
+        metricLabel + " por " + cfg.label + " (top 12)";
+    }
+
+    function updateTable() {
+      const cfg = getLevelConfig();
+      const nameField = cfg.nameField;
+      const rows = cfg.data.slice();
+
+      const tbody = document.getElementById("detail-tbody");
+      tbody.innerHTML = "";
+
+      // Enriquecemos con métricas derivadas CPR, CPM, CPC
+      const enriched = rows.map(r => {
+        const spend = parseNumber(r["Amount spent (ARS)"]);
+        const results = parseNumber(r["Results"]);
+        const impressions = parseNumber(r["Impressions"]);
+        const cpr = results ? spend / results : 0;
+        const cpm = impressions ? (spend / impressions) * 1000 : 0;
+        const cpc = results ? spend / results : 0;
+
+        return {
+          ...r,
+          CPR: cpr,
+          CPM: cpm,
+          CPC: cpc,
+          name: r[nameField] || "N/A"
+        };
+      });
+
+      // Orden por la métrica principal (o por sortKey si se cambió desde el header)
+      const sortKey = state.sortKey || state.metric;
+      const dir = state.sortDir === "asc" ? 1 : -1;
+
+      enriched.sort((a, b) => {
+        if (sortKey === "name") {
+          // ordenar alfabético
+          return dir * String(a.name).localeCompare(String(b.name));
+        }
+        return dir * (parseNumber(a[sortKey]) - parseNumber(b[sortKey]));
+      });
+
+      enriched.forEach(r => {
+        const tr = document.createElement("tr");
+
+        const ctrPercent = parseNumber(r["CTR (all)"]) || 0;
+
+        tr.innerHTML = `
+          <td>${r.name}</td>
+          <td>${formatNumber(r["Results"], 0)}</td>
+          <td>${formatCurrency(r["Amount spent (ARS)"])}</td>
+          <td>${formatNumber(r["Impressions"], 0)}</td>
+          <td>${formatNumber(r["Reach"], 0)}</td>
+          <td>${formatPercent(ctrPercent, 2)}</td>
+          <td>${formatCurrency(r["CPR"])}</td>
+          <td>${formatCurrency(r["CPM"])}</td>
+          <td>${formatCurrency(r["CPC"])}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("table-level-label").textContent = cfg.label;
+    }
+
+    function attachTableSortHandlers() {
+      const headers = document
+        .getElementById("detail-table")
+        .querySelectorAll("th.sortable");
+
+      headers.forEach(th => {
+        th.addEventListener("click", () => {
+          const key = th.dataset.key;
+          if (!key) return;
+
+          if (state.sortKey === key) {
+            state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+          } else {
+            state.sortKey = key;
+            state.sortDir = "desc";
+          }
+          updateTable();
+        });
+      });
+    }
+
+    function updateDateRangePill() {
+      // Tomamos reporting starts/ends de campañas o adsets
+      const dataset = campaignsData.length ? campaignsData : adsetsData;
+      if (!dataset.length) return;
+
+      const first = dataset[0];
+      const start = first["Reporting starts"];
+      const end = first["Reporting ends"];
+      const pill = document.getElementById("date-range-pill");
+      pill.textContent = `Rango: ${start} → ${end}`;
+    }
+
+    function rebuildDashboard() {
+      updateKpis();
+      updateChart();
+      updateTable();
+      updateDateRangePill();
+    }
+
+    function loadCsv(path, onDone) {
+      Papa.parse(path, {
+        download: true,
+        header: true,
+        dynamicTyping: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+          onDone(results.data || []);
+        },
+        error: function(err) {
+          console.error("Error cargando CSV:", path, err);
+          onDone([]);
+        }
+      });
+    }
+
+    function initDashboard() {
+      let pending = 3;
+
+      loadCsv(CSV_FILES.campaigns, data => {
+        campaignsData = data;
+        pending--;
+        if (!pending) rebuildDashboard();
+      });
+
+      loadCsv(CSV_FILES.adsets, data => {
+        adsetsData = data;
+        pending--;
+        if (!pending) rebuildDashboard();
+      });
+
+      loadCsv(CSV_FILES.ads, data => {
+        adsData = data;
+        pending--;
+        if (!pending) rebuildDashboard();
+      });
+
+      // Eventos de controles
+      document.getElementById("level-select").addEventListener("change", e => {
+        state.level = e.target.value;
+        rebuildDashboard();
+      });
+
+      document.getElementById("metric-select").addEventListener("change", e => {
+        state.metric = e.target.value;
+        state.sortKey = e.target.value;
+        state.sortDir = "desc";
+        rebuildDashboard();
+      });
+
+      attachTableSortHandlers();
+    }
+
+    document.addEventListener("DOMContentLoaded", initDashboard);
+  </script>
+</body>
+</html>
+
